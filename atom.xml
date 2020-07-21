@@ -5,9 +5,9 @@
   <subtitle>每天前进一小步</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
+  <link href="http://wangrui-hz.github.io/"/>
   <updated>2020-07-21T08:10:22.978Z</updated>
-  <id>http://yoursite.com/</id>
+  <id>http://wangrui-hz.github.io/</id>
   
   <author>
     <name>Draytf</name>
@@ -18,8 +18,8 @@
   
   <entry>
     <title>article title</title>
-    <link href="http://yoursite.com/2020/07/21/article-title/"/>
-    <id>http://yoursite.com/2020/07/21/article-title/</id>
+    <link href="http://wangrui-hz.github.io/2020/07/21/article-title/"/>
+    <id>http://wangrui-hz.github.io/2020/07/21/article-title/</id>
     <published>2020-07-21T08:07:19.000Z</published>
     <updated>2020-07-21T08:10:22.978Z</updated>
     
@@ -42,8 +42,8 @@
   
   <entry>
     <title>Hello World</title>
-    <link href="http://yoursite.com/2020/07/21/hello-world/"/>
-    <id>http://yoursite.com/2020/07/21/hello-world/</id>
+    <link href="http://wangrui-hz.github.io/2020/07/21/hello-world/"/>
+    <id>http://wangrui-hz.github.io/2020/07/21/hello-world/</id>
     <published>2020-07-21T07:45:11.257Z</published>
     <updated>2020-07-21T07:45:11.257Z</updated>
     
