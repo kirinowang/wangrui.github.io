@@ -29,8 +29,8 @@
 
     <script src="/libs/jquery/jquery.min.js"></script>
 
-<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="Drayft" type="application/atom+xml">
-<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+<meta name="generator" content="Hexo 4.2.1"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"><link rel="alternate" href="/atom.xml" title="Drayft" type="application/atom+xml">
+</head>
 
 
 <body>
@@ -265,7 +265,7 @@
                 <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
                 <script>
                     var typed = new Typed("#subtitle", {
-                        strings: ['','教练，我也想打CTF'],
+                        strings: ['教练，我也想打CTF','这道题太难了，我不会做'],
                         startDelay: 300,
                         typeSpeed: 120,
                         loop: true,
@@ -378,7 +378,7 @@
         }
 
         coverSlider.carousel({
-            duration: Number('500'),
+            duration: Number('120'),
             fullWidth: true,
             indicators: 'true' === 'true',
             onCycleTo() {
@@ -396,7 +396,7 @@
         let autoCarousel = function () {
             carouselIntervalId = setInterval(function () {
                 coverSlider.carousel('next');
-            }, 10000);
+            }, 8000);
         };
         autoCarousel();
         
