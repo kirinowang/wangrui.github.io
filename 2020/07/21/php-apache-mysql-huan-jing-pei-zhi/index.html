@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="PHP+Apache+MySQL环境配置, Web">
+    <meta name="keywords" content="PHP-Apache-MySQL环境配置, Web">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>PHP+Apache+MySQL环境配置 | Drayft</title>
+    <title>PHP-Apache-MySQL环境配置 | Drayft</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -29,8 +29,8 @@
 
     <script src="/libs/jquery/jquery.min.js"></script>
 
-<meta name="generator" content="Hexo 4.2.1"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"><link rel="alternate" href="/atom.xml" title="Drayft" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="Drayft" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
 
 
 <body>
@@ -198,12 +198,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/13.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/11.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">PHP+Apache+MySQL环境配置</h1>
+                    <h1 class="description center-align post-title">PHP-Apache-MySQL环境配置</h1>
                 </div>
             </div>
         </div>
@@ -320,8 +320,16 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">
-                                <span class="chip bg-color">环境配置</span>
+                            <a href="/tags/PHP/">
+                                <span class="chip bg-color">PHP</span>
+                            </a>
+                        
+                            <a href="/tags/Apache/">
+                                <span class="chip bg-color">Apache</span>
+                            </a>
+                        
+                            <a href="/tags/MySQL/">
+                                <span class="chip bg-color">MySQL</span>
                             </a>
                         
                     </div>
@@ -334,14 +342,6 @@
                         
                             <a href="/categories/PHP/" class="post-category">
                                 PHP
-                            </a>
-                        
-                            <a href="/categories/PHP/MySQL/" class="post-category">
-                                MySQL
-                            </a>
-                        
-                            <a href="/categories/PHP/MySQL/Apache/" class="post-category">
-                                Apache
                             </a>
                         
                     </div>
@@ -426,23 +426,26 @@
 <hr>
 <h3 id="Apache配置"><a href="#Apache配置" class="headerlink" title="Apache配置"></a>Apache配置</h3><ul>
 <li><p><strong>安装服务</strong></p>
-<ol>
+<ul>
 <li>进入CMD管理员模式；</li>
 <li><code>cd server\apache\bin</code>；&nbsp;&nbsp;&nbsp;&nbsp;//Apache软件安装过程，未把httpd加入Windows系统变量，所以需要进入bin目录</li>
 <li><code>httpd -k install -n “Apache”</code>。&nbsp;&nbsp;&nbsp;&nbsp;//安装与命名</li>
-</ol>
+</ul>
 </li>
 <li><p><strong>配置默认站点</strong></p>
-<p>(1) 打开<code>server\apache\conf</code> 下的 <code>httpd.conf</code> 配置文件。&nbsp;&nbsp;&nbsp;&nbsp; //修改之前先备份；<br>(2) 找到 <code>Define SRVROOT</code>，把<code>/Apache24</code>修改为 <code>D:/server/apache</code>（绝对路径）；<br>(3) 找到<code>ServerName</code>，把<code>www.example.com:80</code>修改为<code>localhost</code>（网站域名），并取消注释。</p>
+<ul>
+<li>打开<code>server\apache\conf</code> 下的 <code>httpd.conf</code> 配置文件。&nbsp;&nbsp;&nbsp;&nbsp; //修改之前先备份；</li>
+<li>找到 <code>Define SRVROOT</code>，把<code>/Apache24</code>修改为 <code>D:/server/apache</code>（绝对路径）；<br>找到<code>ServerName</code>，把<code>www.example.com:80</code>修改为<code>localhost</code>（网站域名），并取消注释。</li>
+</ul>
 </li>
 <li><p><strong>修改本地hosts文件</strong></p>
-<ol>
+<ul>
 <li>打开 <code>C:\Windows\System32\drivers\etc\host</code>；</li>
 <li>在下方添加 <code>127.0.0.1    localhost</code>（域名解析）。</li>
-</ol>
+</ul>
 </li>
 <li><p><strong>配置PHP服务</strong></p>
-<ol>
+<ul>
 <li><p>打开<code>httpd.conf</code></p>
 </li>
 <li><p>添加语句<code>LoadModule php5-module D:/server/php/php5apache2_4.dll</code>&nbsp;&nbsp;&nbsp;&nbsp;//加载PHP模块</p>
@@ -455,10 +458,10 @@
 <p><strong>Note</strong>：语句直接添加在 LoadModule xxx xxx 下方就行。</p>
 </blockquote>
 </li>
-</ol>
+</ul>
 </li>
 <li><p><strong>打开虚拟主机功能</strong>（可选的，学习过程中可以不需要打开）</p>
-<ol>
+<ul>
 <li><p>打开<code>httpd.conf</code></p>
 </li>
 <li><p>取消该语句的注释： <code>Include conf/extra/httpd-vhosts.conf</code></p>
@@ -466,53 +469,61 @@
 <li><p>打开虚拟主机配置文件 <code>apache\conf\extra\httpd-vhosts.conf</code></p>
 </li>
 <li><p>根据示例，增加虚拟主机</p>
-<pre><code>&lt;VirtualHost *:80&gt;
-    Document root &#39;E:/discuz&#39;  #增加网站（目录）
-    ServerName www.discuz.com  #增加域名（主机名）
-    &lt;Directory &#39;E:/discuz&#39;&gt;  #配置权限
-        Order Deny,Allow
-        Deny from all
-        Allow from all
-        #列表显示
-        Options Indexes FollowSymLinks
-        #指定默认访问文件
-        DirectoryIndex index.html index.htm index.php
-    &lt;/Directory&gt;
-&lt;/VirtualHost&gt;</code></pre></li>
-<li><p>给Windows的host再添加一条记录</p>
-<p><code>127.0.0.1    www.discuz.com</code></p>
 </li>
-</ol>
+<li><pre><code> &lt;VirtualHost *:80&gt;
+     Document root &#39;E:/discuz&#39;  #增加网站（目录）
+     ServerName www.discuz.com  #增加域名（主机名）
+     &lt;Directory &#39;E:/discuz&#39;&gt;  #配置权限
+         Order Deny,Allow
+         Deny from all
+         Allow from all
+         #列表显示
+         Options Indexes FollowSymLinks
+         #指定默认访问文件
+         DirectoryIndex index.html index.htm index.php
+     &lt;/Directory&gt;
+ &lt;/VirtualHost&gt;</code></pre></li>
+<li><p>给Windows的host再添加一条记录：<code>127.0.0.1    www.discuz.com</code></p>
 <blockquote>
 <p><strong>Note</strong>：如果启用虚拟主机配置，那么默认的主机地址localhost就不再生效，如果想要其生效，则需要单独增加一个域名为localhost的虚拟主机。</p>
 </blockquote>
 </li>
-<li><p>测试是否配置成功</p>
-<p>验证配置文件：在CMD命令行输入<code>httpd -t</code>，如果返回<code>Syntax OK</code>，则说明配置成功。</p>
+</ul>
+</li>
+<li><p><strong>测试是否配置成功</strong></p>
 </li>
 </ul>
+<p>验证配置文件：在CMD命令行输入<code>httpd -t</code>，如果返回<code>Syntax OK</code>，则说明配置成功。</p>
 <hr>
 <h3 id="PHP配置"><a href="#PHP配置" class="headerlink" title="PHP配置"></a>PHP配置</h3><ul>
 <li><strong>生成php.ini</strong><ol>
 <li>进入目录 <code>server\php</code>；</li>
+</ol>
+<ul>
 <li>备份 php.ini-development 文件；</li>
 <li>把原 php.ini-development 修改为 php.ini。</li>
-</ol>
+</ul>
 </li>
 <li><strong>加载MySQL扩展</strong><ol>
 <li>打开php.ini文件；</li>
-<li>找到<code>extension=php_mysql,dll</code>，并取消注释。</li>
 </ol>
+<ul>
+<li>找到<code>extension=php_mysql,dll</code>，并取消注释。</li>
+</ul>
 </li>
 <li><strong>添加扩展文件夹的绝对路径</strong><ol>
 <li>打开php.ini；</li>
-<li>在<code>extension_dir = “ext”</code>下添加语句<code>extension_dir = “D:/server/php/ext&quot;</code>。</li>
 </ol>
+<ul>
+<li>在<code>extension_dir = “ext”</code>下添加语句<code>extension_dir = “D:/server/php/ext&quot;</code>。</li>
+</ul>
 </li>
 <li><strong>修改时区</strong><ol>
 <li>打开php.ini；</li>
-<li>找到<code>date.timezone = Europe/Amsterdam</code>，修改为地区为<code>PRC</code>。</li>
 </ol>
+<ul>
+<li>找到<code>date.timezone = Europe/Amsterdam</code>，修改为地区为<code>PRC</code>。</li>
+</ul>
 </li>
 </ul>
 <hr>
@@ -523,16 +534,20 @@
 <h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><ul>
 <li>环境配置完成后，每次打开网站前，均要先启动服务与软件：<ol>
 <li>管理员模式进入Windows下CMD命令行；</li>
+</ol>
+<ul>
 <li>启动MySQL服务：<code>net start mysql</code>；</li>
 <li>连接MySQL软件：<code>mysql -u root -p</code>；</li>
 <li>启动Apache：<code>httpd -k start</code>。</li>
-</ol>
+</ul>
 </li>
 <li>结束编程后，一般建议关闭软件与服务：<ol>
 <li>退出MySQL连接：<code>\q</code>；</li>
+</ol>
+<ul>
 <li>关闭MySQL服务：<code>net stop mysql</code>；</li>
 <li>关闭Apache：<code>httpd -k stop</code>。</li>
-</ol>
+</ul>
 </li>
 </ul>
 <blockquote>
@@ -612,8 +627,16 @@
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">
-                                    <span class="chip bg-color">环境配置</span>
+                                <a href="/tags/PHP/">
+                                    <span class="chip bg-color">PHP</span>
+                                </a>
+                            
+                                <a href="/tags/Apache/">
+                                    <span class="chip bg-color">Apache</span>
+                                </a>
+                            
+                                <a href="/tags/MySQL/">
+                                    <span class="chip bg-color">MySQL</span>
                                 </a>
                             
                         </div>
@@ -790,15 +813,15 @@
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/13.jpg" class="responsive-img" alt="PHP+Apache+MySQL环境配置">
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="PHP-Apache-MySQL环境配置">
                         
-                        <span class="card-title">PHP+Apache+MySQL环境配置</span>
+                        <span class="card-title">PHP-Apache-MySQL环境配置</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            下载地址&emsp;&emsp;网上的PHP下载地址很多，但是很多下载文件中不包含php5apache2_4.dll配置文件，这会导致无法配置Apache。&emsp;&emsp;下文给出的下载链接是本人找到的比较官方的地址，更新时间：20
+                            PHP学习第一步
                         
                     </div>
                     <div class="publish-info">
@@ -813,14 +836,6 @@
                                     PHP
                                 </a>
                             
-                            <a href="/categories/PHP/MySQL/" class="post-category">
-                                    MySQL
-                                </a>
-                            
-                            <a href="/categories/PHP/MySQL/Apache/" class="post-category">
-                                    Apache
-                                </a>
-                            
                             
                         </span>
                     </div>
@@ -829,8 +844,16 @@
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">
-                        <span class="chip bg-color">环境配置</span>
+                    <a href="/tags/PHP/">
+                        <span class="chip bg-color">PHP</span>
+                    </a>
+                    
+                    <a href="/tags/Apache/">
+                        <span class="chip bg-color">Apache</span>
+                    </a>
+                    
+                    <a href="/tags/MySQL/">
+                        <span class="chip bg-color">MySQL</span>
                     </a>
                     
                 </div>
