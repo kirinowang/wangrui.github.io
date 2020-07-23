@@ -29,8 +29,8 @@
 
     <script src="/libs/jquery/jquery.min.js"></script>
 
-<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="Drayft" type="application/atom+xml">
-<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+<meta name="generator" content="Hexo 4.2.1"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"><link rel="alternate" href="/atom.xml" title="Drayft" type="application/atom+xml">
+</head>
 
 
 <body>
@@ -401,9 +401,8 @@
 <h3 id="安装事项"><a href="#安装事项" class="headerlink" title="安装事项"></a>安装事项</h3><ul>
 <li><p><strong>目录结构</strong>：在D:\下新建如下的目录结构，把软件解压、安装到对应的文件夹即可。</p>
 <ul>
-<li><p>server</p>
-<ul>
-<li>apache<ul>
+<li>server<ul>
+<li>apache</li>
 <li>mysql<ul>
 <li>data</li>
 </ul>
@@ -424,8 +423,6 @@
 </ul>
 </li>
 </ul>
-</li>
-</ul>
 <hr>
 <h3 id="Apache配置"><a href="#Apache配置" class="headerlink" title="Apache配置"></a>Apache配置</h3><ul>
 <li><p><strong>安装服务</strong></p>
@@ -436,11 +433,7 @@
 </ol>
 </li>
 <li><p><strong>配置默认站点</strong></p>
-<ol>
-<li>打开<code>server\apache\conf</code> 下的 <code>httpd.conf</code> 配置文件。&nbsp;&nbsp;&nbsp;&nbsp; //修改之前先备份；</li>
-<li>找到 <code>Define SRVROOT</code>，把<code>/Apache24</code>修改为 <code>D:/server/apache</code>（绝对路径）；</li>
-<li>找到<code>ServerName</code>，把<code>www.example.com:80</code>修改为<code>localhost</code>（网站域名），并取消注释。</li>
-</ol>
+<p>(1) 打开<code>server\apache\conf</code> 下的 <code>httpd.conf</code> 配置文件。&nbsp;&nbsp;&nbsp;&nbsp; //修改之前先备份；<br>(2) 找到 <code>Define SRVROOT</code>，把<code>/Apache24</code>修改为 <code>D:/server/apache</code>（绝对路径）；<br>(3) 找到<code>ServerName</code>，把<code>www.example.com:80</code>修改为<code>localhost</code>（网站域名），并取消注释。</p>
 </li>
 <li><p><strong>修改本地hosts文件</strong></p>
 <ol>
