@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wangrui-hz.github.io/"/>
-  <updated>2020-07-23T07:21:22.187Z</updated>
+  <updated>2020-08-10T07:34:43.858Z</updated>
   <id>http://wangrui-hz.github.io/</id>
   
   <author>
@@ -15,6 +15,58 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>SQL参数化查询的原理及探究</title>
+    <link href="http://wangrui-hz.github.io/2020/08/09/can-shu-hua-cha-xun-de-yuan-li-ji-tan-jiu/"/>
+    <id>http://wangrui-hz.github.io/2020/08/09/can-shu-hua-cha-xun-de-yuan-li-ji-tan-jiu/</id>
+    <published>2020-08-09T14:32:56.000Z</published>
+    <updated>2020-08-10T07:34:43.858Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="SQL注入防御——参数化查询探究"><a href="#SQL注入防御——参数化查询探究" class="headerlink" title="SQL注入防御——参数化查询探究"></a>SQL注入防御——参数化查询探究</h2><p>本文基于SQL语句的执行过程，从底层的一些逻辑入手，描述了参数化查询为什么能防御SQL注入攻击。</p><blockquote><p>NOTE：本人的理解仅供参考。</p></blockquote><h3 id="SQL注入的防御措施"><a href="#SQL注入的防御措施" class="headerlink" title="SQL注入的防御措施"></a>SQL注入的防御措施</h3><p>在<strong>开源Web应用安全项目（OWASP）</strong>的2013以及2017的TOP 10中，SQL注入的安全风险都是A1级别的。针对SQL注入，主要的防御措施包括以下几种：</p><ul><li>使用参数化查询（or 安全的API）</li><li>使用存储过程</li><li>白名单输入验证</li><li>转义所有用户提供的输入</li><li>强制执行最低的权限</li></ul><p>其中，参数化查询是开发中最常用到的防御措施。</p><hr><h3 id="SQL语句执行过程"><a href="#SQL语句执行过程" class="headerlink" title="SQL语句执行过程"></a>SQL语句执行过程</h3><p>在理解SQL注入与防御前，最重要的就是知道：执行SQL语句时，MySQL底层经历的过程。</p><p>首先，数据库一般分为Server层和存储引擎层两部分：</p><ul><li><p>Server层：连接器，查询缓存，分析器，优化器，执行器；</p></li><li><p>存储引擎：提供存储机制（数据结构），索引技巧，锁定水平的相关功能；根据不同的技术，有多种存储引擎。</p><blockquote><p>InnoDB：支持事务安全表，支持锁定与外键<br>Memory：将所有数据保存在RAM，提供快速访问。</p></blockquote></li></ul><p>假设查询语句为<code>select * from student where user = Tom</code>,其执行过程一般如下所示：</p><ol><li><p><strong>连接器</strong>：建立连接；</p></li><li><p><strong>查询缓存</strong>：语句是否执行过，如果是则直接返回缓存结果，不是则进行下一步；</p></li><li><p><strong>分析器</strong>：先词法分析，识别关键字（SELECT等）；再进行语法分析，判断语法是否正确；</p></li><li><p><strong>优化器</strong>：判断使用哪个索引，如何进行表连接等；</p></li><li><p><strong>执行器</strong>：调用引擎</p><blockquote><p>执行器的执行流程：</p><p>调用引擎接口，读取表的第一行，判断<code>user</code>的值是不是<code>Tom</code>，如果不是则跳过；再取下一行，重复判断逻辑，直到表的最后一行。执行器再将所有满足条件的结果返回给客户端。</p></blockquote></li></ol><p>根据数据库执行SQL语句的底层逻辑，可以发现<strong>分析</strong>和<strong>优化</strong>过程，与传入的字段值（<code>Tom</code>）关系不大，但是耗费的时间更长。如果在同一个连接下，执行多个相似的语句（只是值不同），它们的分析和优化是相同的，但是在查询缓存阶段却不会匹配，这会浪费大量的时间。</p><p>因此数据库提供了<strong>预编译（Prepared Statement），也就是参数化查询</strong>：先将带有占位符（<code>?</code>）的SQL模板发送至MySQL服务器；由服务器对此无参数的SQL进行编译后，将编译结果缓存；然后再直接执行带有真实参数的SQL。同时，参数化查询还能防御SQL注入。</p><hr><h3 id="参数化查询（预编译）"><a href="#参数化查询（预编译）" class="headerlink" title="参数化查询（预编译）"></a>参数化查询（预编译）</h3><h5 id="防御原理"><a href="#防御原理" class="headerlink" title="防御原理"></a>防御原理</h5><p>先上结论，预编译能防御SQL注入的关键在于其预编译过程：</p><ol><li>数据库将SQL模板进行预编译，生成对应的语法树；</li><li>数据库将该SQL编译后放到缓存池中；</li><li>执行时，传入的参数不进行编译（即注入的语句不会编译），而是去找原来的SQL模板（因此注入的SQL语句不会执行）；</li><li>传入的所有参数都被当做参数处理（到达防御SQL注入）。</li></ol><p>下面，再根据不同语言的预编译，探究一下。</p><h5 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h5><p>首先以<code>java</code>为例，参数化查询的代码如下：</p><pre class=" language-java"><code class="language-java">Connection conn <span class="token operator">=</span> DBConnect<span class="token punctuation">.</span><span class="token function">getConnection</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>PreparedStatement ps <span class="token operator">=</span> null<span class="token punctuation">;</span>ResultSet rs<span class="token operator">=</span>null<span class="token punctuation">;</span>String sql <span class="token operator">=</span> <span class="token string">" SELECT * FROM user WHERE name = ? "</span><span class="token punctuation">;</span>ps <span class="token operator">=</span> conn<span class="token punctuation">.</span><span class="token function">prepareStatement</span><span class="token punctuation">(</span>sql<span class="token punctuation">)</span><span class="token punctuation">;</span>ps<span class="token punctuation">.</span><span class="token function">setString</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"1' or '1'='1"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>rs <span class="token operator">=</span> ps<span class="token punctuation">.</span><span class="token function">executeQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><p>然后，通过抓包和日志，可以分析其执行过程如下：</p><blockquote><p>Request Command Prepare Statement<br>Command: Prepare Statement<br>Statement: select * from user WHERE name=?</p><p>Parameter<br>Type: FIELD_TYPE_VAR_STRING<br>Unsigned: 0<br>Value: 1’ or ‘1’=’1</p><p>Prepare select * from user WHERE name=?<br>Execute select * from user WHERE name=’1\‘ or\ &#39;1\‘=\‘1’</p></blockquote><p>可以很明显的看到，MySQL先执行了预编译，然后再接收参数。</p><p>对于字符串<code>setString()</code>，其处理为：对参数用单引号包裹，参数中的特殊字符做转义处理。</p><h5 id="PHP"><a href="#PHP" class="headerlink" title="PHP"></a>PHP</h5><p>然后再看看PHP。PHP Data Object（PDO）扩展为PHP访问数据库定义了一个轻量级的一致接口，也是PHP中典型的预编译参数化查询方式。</p><p>PDO与安全相关的主要设置有三个（PHP版本不同其设置可能不同）：</p><ul><li>PDO::ATTR_EMULATE_PREPARES    //模拟预编译</li><li>PDO::ATTR_ERRMODE    //报错</li><li>PDO::MYSQL_ATTR_MULTI_STATEMENTS    //多句执行</li></ul><pre class=" language-PHP"><code class="language-PHP">$name = $POST['name'];$db = new PDO('mysql:host=loaclhost;dbname=pdotest','root','');$sql = "select * from user where 1 = ?";$stmt = $db->prepare($sql);$stmt->bindParm(1,$name)$stmt->execute();</code></pre><p>如果开启模拟预编译<code>ture</code>，请求<code>name = 1&#39; or &#39;1&#39;=&#39;1</code>，查看日志结果：</p><blockquote><p>Query select * from user where 1 = ‘1\‘ or \‘1\‘=\‘1’</p></blockquote><p>可以发现，模拟预编译与普通的动态查询没有太大区别（在<strong>GBK编码</strong>下可用宽字节<code>%df</code>绕过）。</p><p>之所以存在模拟预编译，是因为有些数据库不支持预编译。</p><p>然后，关闭模拟预编译<code>flase</code>，并设置编码方式为GBK，再请求<code>name = 1&#39; or &#39;1&#39;=&#39;1</code>，查看日志：</p><blockquote><p>Prepare select * from user where 1 = ?</p><p>Execute select * from user where 1 = 0x31276f722731273d2731</p></blockquote><p>可以看到，SQL语句也执行了预编译和执行两个操作。这样也达到了预防SQL注入的效果。</p><hr><h3 id="安全问题"><a href="#安全问题" class="headerlink" title="安全问题"></a>安全问题</h3><p>虽然说预编译几乎能预防所有的SQL注入，但是在某些情况下还是存在着一些安全问题。</p><blockquote><p>NOTE: 根据不同语言版本，数据库版本，其默认设置不同，可能会出现不同的安全问题（或者已修复）。</p></blockquote><h5 id="Order-by"><a href="#Order-by" class="headerlink" title="Order by"></a>Order by</h5><p>对于上文中提到的<code>setString()</code>，它是对String类型进行预编译，在执行阶段会将参数用单引号<code>‘’</code>包裹。但是如果需要使用到以下语句：</p><pre class=" language-SQL"><code class="language-SQL">select * from user order by ?;select * from ? where user = ?;</code></pre><p>上述语句会报错，因为字段名不能添加引号。</p><p>所以，凡是<strong>String类型且不能加引号的位置</strong>，不能使用参数化：比如SQL关键字，库名，表名，字段名等。</p><blockquote><p>挖SQL注入时，找有排序功能需求的位置（比如博客常按时间排序），可能挖到SQL注入。</p></blockquote><h5 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h5><p>针对类似与<code>order by</code>的问题，可以使用白名单限制来进行防御。</p><hr><h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>全文只是对预编译，参数化查询的原理进行简单的描述，帮助理解。</p><p>可能和官方文档以及最新版本的软件有所差别或有所错误，请自行判断。</p><p><strong>相关参考资料：</strong></p><p><a href="https://www.cnblogs.com/lsdb/p/12084038.html" target="_blank" rel="noopener">SQL预编译中order by后为什么不能参数化原因</a></p><p><a href="https://xz.aliyun.com/t/3950" target="_blank" rel="noopener">PDO场景下的SQL注入探究</a></p><p><a href="https://www.chainnews.com/zh-hant/articles/990603200755.htm" target="_blank" rel="noopener">從寬字節注入認識 PDO 的原理和正確使用</a></p><p><a href="https://stackoverflow.com/questions/134099/are-pdo-prepared-statements-sufficient-to-prevent-sql-injection" target="_blank" rel="noopener">Are PDO prepared statements sufficient to prevent SQL injection?</a></p><p><a href="https://mp.weixin.qq.com/s/Q07TuFKG7uNayZQyNzo1PQ" target="_blank" rel="noopener">SQL注入攻击防御之预编译的探究</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;SQL注入防御——参数化查询探究&quot;&gt;&lt;a href=&quot;#SQL注入防御——参数化查询探究&quot; class=&quot;headerlink&quot; title=&quot;SQL注入防御——参数化查询探究&quot;&gt;&lt;/a&gt;SQL注入防御——参数化查询探究&lt;/h2&gt;&lt;p&gt;本文基于SQL语句的执行过程
+      
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>PHP文件上传</title>
+    <link href="http://wangrui-hz.github.io/2020/08/01/php-wen-jian-shang-chuan/"/>
+    <id>http://wangrui-hz.github.io/2020/08/01/php-wen-jian-shang-chuan/</id>
+    <published>2020-08-01T12:59:35.000Z</published>
+    <updated>2020-08-01T13:36:52.748Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前端表单"><a href="#前端表单" class="headerlink" title="前端表单"></a>前端表单</h2><pre class=" language-php+HTML"><code class="language-php+HTML"><html>    <head>        <meta charset="utf-8">        <title>file_upload</title>    </head>    <body>        <form method="POST" enctype="multipart/form-data" action="file_upload_function.php">            <input type="file" name="image" />            <input type="submit" name="btn" value="upload" />        </form>    </body></html></code></pre>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;前端表单&quot;&gt;&lt;a href=&quot;#前端表单&quot; class=&quot;headerlink&quot; title=&quot;前端表单&quot;&gt;&lt;/a&gt;前端表单&lt;/h2&gt;&lt;pre class=&quot; language-php+HTML&quot;&gt;&lt;code class=&quot;language-php+HTML&quot;&gt;&lt;
+      
+    
+    </summary>
+    
+    
+      <category term="PHP" scheme="http://wangrui-hz.github.io/categories/PHP/"/>
+    
+    
+      <category term="PHP" scheme="http://wangrui-hz.github.io/tags/PHP/"/>
+    
+      <category term="CTF" scheme="http://wangrui-hz.github.io/tags/CTF/"/>
+    
+      <category term="文件上传" scheme="http://wangrui-hz.github.io/tags/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/"/>
+    
+  </entry>
   
   <entry>
     <title>PHP-Apache-MySQL环境配置</title>
