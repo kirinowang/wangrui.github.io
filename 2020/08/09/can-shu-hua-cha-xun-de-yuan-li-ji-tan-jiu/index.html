@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="SQL参数化查询的原理及探究, Web">
+    <meta name="keywords" content="SQL注入防御——参数化查询的原理与理解, Web">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>SQL参数化查询的原理及探究 | Drayft</title>
+    <title>SQL注入防御——参数化查询的原理与理解 | Drayft</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -198,12 +198,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/2.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/5.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">SQL参数化查询的原理及探究</h1>
+                    <h1 class="description center-align post-title">SQL注入防御——参数化查询的原理与理解</h1>
                 </div>
             </div>
         </div>
@@ -341,7 +341,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.7k
+                    1.8k
                 </div>
                 
 
@@ -358,9 +358,9 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h2 id="SQL注入防御——参数化查询探究"><a href="#SQL注入防御——参数化查询探究" class="headerlink" title="SQL注入防御——参数化查询探究"></a>SQL注入防御——参数化查询探究</h2><p>本文基于SQL语句的执行过程，从底层的一些逻辑入手，描述了参数化查询为什么能防御SQL注入攻击。</p>
+                <h2 id="SQL注入防御——参数化查询的原理与理解"><a href="#SQL注入防御——参数化查询的原理与理解" class="headerlink" title="SQL注入防御——参数化查询的原理与理解"></a>SQL注入防御——参数化查询的原理与理解</h2><p>本文基于SQL语句的执行过程，从底层的逻辑入手，简单描述了参数化查询为什么能防御SQL注入攻击。</p>
 <blockquote>
-<p>NOTE：本人的理解仅供参考。</p>
+<p>NOTE：本人理解，仅供参考。</p>
 </blockquote>
 <h3 id="SQL注入的防御措施"><a href="#SQL注入的防御措施" class="headerlink" title="SQL注入的防御措施"></a>SQL注入的防御措施</h3><p>在<strong>开源Web应用安全项目（OWASP）</strong>的2013以及2017的TOP 10中，SQL注入的安全风险都是A1级别的。针对SQL注入，主要的防御措施包括以下几种：</p>
 <ul>
@@ -372,8 +372,8 @@
 </ul>
 <p>其中，参数化查询是开发中最常用到的防御措施。</p>
 <hr>
-<h3 id="SQL语句执行过程"><a href="#SQL语句执行过程" class="headerlink" title="SQL语句执行过程"></a>SQL语句执行过程</h3><p>在理解SQL注入与防御前，最重要的就是知道：执行SQL语句时，MySQL底层经历的过程。</p>
-<p>首先，数据库一般分为Server层和存储引擎层两部分：</p>
+<h3 id="SQL语句执行过程"><a href="#SQL语句执行过程" class="headerlink" title="SQL语句执行过程"></a>SQL语句执行过程</h3><p>在理解SQL注入与防御前，最重要的就是知道：执行SQL语句时，数据库（以MySQL为例）底层经历的过程。</p>
+<p>数据库一般分为Server层和存储引擎层两部分：</p>
 <ul>
 <li><p>Server层：连接器，查询缓存，分析器，优化器，执行器；</p>
 </li>
@@ -410,7 +410,7 @@
 <li>执行时，传入的参数不进行编译（即注入的语句不会编译），而是去找原来的SQL模板（因此注入的SQL语句不会执行）；</li>
 <li>传入的所有参数都被当做参数处理（到达防御SQL注入）。</li>
 </ol>
-<p>下面，再根据不同语言的预编译，探究一下。</p>
+<p>下面，再根据不同语言的预编译，说明一下。</p>
 <h5 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h5><p>首先以<code>java</code>为例，参数化查询的代码如下：</p>
 <pre class=" language-java"><code class="language-java">Connection conn <span class="token operator">=</span> DBConnect<span class="token punctuation">.</span><span class="token function">getConnection</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 PreparedStatement ps <span class="token operator">=</span> null<span class="token punctuation">;</span>
@@ -434,24 +434,29 @@ rs <span class="token operator">=</span> ps<span class="token punctuation">.</sp
 <li>PDO::ATTR_ERRMODE    //报错</li>
 <li>PDO::MYSQL_ATTR_MULTI_STATEMENTS    //多句执行</li>
 </ul>
+<p>PDO，其代码如下：</p>
 <pre class=" language-PHP"><code class="language-PHP">$name = $POST['name'];
 $db = new PDO('mysql:host=loaclhost;dbname=pdotest','root','');
 $sql = "select * from user where 1 = ?";
 $stmt = $db->prepare($sql);
 $stmt->bindParm(1,$name)
 $stmt->execute();</code></pre>
-<p>如果开启模拟预编译<code>ture</code>，请求<code>name = 1&#39; or &#39;1&#39;=&#39;1</code>，查看日志结果：</p>
+<p>需要注意的是PDO设置会影响执行过程。</p>
+<p><strong>如果开启</strong>模拟预编译<code>ture</code>，请求<code>name = 1&#39; or &#39;1&#39;=&#39;1</code>，查看日志结果：</p>
 <blockquote>
 <p>Query select * from user where 1 = ‘1\‘ or \‘1\‘=\‘1’</p>
 </blockquote>
-<p>可以发现，模拟预编译与普通的动态查询没有太大区别（在<strong>GBK编码</strong>下可用宽字节<code>%df</code>绕过）。</p>
+<p>可以发现，模拟预编译与普通的动态查询没有太大区别。</p>
+<blockquote>
+<p>模拟预编译，在<strong>GBK编码</strong>下，可用宽字节绕过<code>%df</code>。</p>
+</blockquote>
 <p>之所以存在模拟预编译，是因为有些数据库不支持预编译。</p>
-<p>然后，关闭模拟预编译<code>flase</code>，并设置编码方式为GBK，再请求<code>name = 1&#39; or &#39;1&#39;=&#39;1</code>，查看日志：</p>
+<p><strong>如果关闭</strong>模拟预编译<code>flase</code>，并设置编码方式为GBK，再请求<code>name = 1&#39; or &#39;1&#39;=&#39;1</code>，查看日志：</p>
 <blockquote>
 <p>Prepare select * from user where 1 = ?</p>
 <p>Execute select * from user where 1 = 0x31276f722731273d2731</p>
 </blockquote>
-<p>可以看到，SQL语句也执行了预编译和执行两个操作。这样也达到了预防SQL注入的效果。</p>
+<p>可以看到，SQL语句执行了预编译和执行两个操作（并且不存在宽字节绕过）。</p>
 <hr>
 <h3 id="安全问题"><a href="#安全问题" class="headerlink" title="安全问题"></a>安全问题</h3><p>虽然说预编译几乎能预防所有的SQL注入，但是在某些情况下还是存在着一些安全问题。</p>
 <blockquote>
@@ -468,7 +473,8 @@ select * from ? where user = ?;</code></pre>
 <h5 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h5><p>针对类似与<code>order by</code>的问题，可以使用白名单限制来进行防御。</p>
 <hr>
 <h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>全文只是对预编译，参数化查询的原理进行简单的描述，帮助理解。</p>
-<p>可能和官方文档以及最新版本的软件有所差别或有所错误，请自行判断。</p>
+<p>在参数化查询中，可能存在其他的SQL注入形式，但是本人并不是很了解，因此没有进行说明。</p>
+<p>有些说法可能和官方文档以及最新版本的软件有所差别或有所错误，请自行查阅资料。</p>
 <p><strong>相关参考资料：</strong></p>
 <p><a href="https://www.cnblogs.com/lsdb/p/12084038.html" target="_blank" rel="noopener">SQL预编译中order by后为什么不能参数化原因</a></p>
 <p><a href="https://xz.aliyun.com/t/3950" target="_blank" rel="noopener">PDO场景下的SQL注入探究</a></p>
@@ -712,19 +718,15 @@ select * from ? where user = ?;</code></pre>
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="SQL参数化查询的原理及探究">
+                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="SQL注入防御——参数化查询的原理与理解">
                         
-                        <span class="card-title">SQL参数化查询的原理及探究</span>
+                        <span class="card-title">SQL注入防御——参数化查询的原理与理解</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            SQL注入防御——参数化查询探究本文基于SQL语句的执行过程，从底层的一些逻辑入手，描述了参数化查询为什么能防御SQL注入攻击。
-
-NOTE：本人的理解仅供参考。
-
-SQL注入的防御措施在开源Web应用安全项目（OWASP）的2013以及2
+                            个人理解，仅供参考
                         
                     </div>
                     <div class="publish-info">
